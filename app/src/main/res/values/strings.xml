@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NullDivision_CTF</string>
-    <string name="serverUrl">nulldivision.auth.com</string>
+    <string name="serverUrl">127.0.0.1</string>
+    <string name="serverPORT">2137</string>
 </resources>

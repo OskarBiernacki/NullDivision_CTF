@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NullDivision_CTF</string>
+    <string name="serverUrl">nulldivision.auth.com</string>
 </resources>

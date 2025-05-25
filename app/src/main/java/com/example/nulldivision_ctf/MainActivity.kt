@@ -1,6 +1,7 @@
 package com.example.nulldivision_ctf
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,21 +31,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.dp
-import com.example.nulldivision_ctf.ui.theme.NullDivision_CTFTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.res.TypedArrayUtils.getText
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.example.nulldivision_ctf.ui.theme.NullDivision_CTFTheme
 import kotlinx.coroutines.delay
 import org.json.JSONObject
+
+enum class Page{
+    LoginScreen,
+    LoadingScreen,
+    AccessScreen
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,34 +67,37 @@ class MainActivity : ComponentActivity() {
 
 fun makeAPIRequest(main : ComponentActivity, serverUrl : String, method : String, data : JSONObject, onResponseReaction: (response :  JSONObject ) -> Unit ) {
     val volleyQueue = Volley.newRequestQueue(main)
-
-//        val jsonBody = JSONObject()
-//        jsonBody.put("login", login)
-//        jsonBody.put("password", password)
-
     val jsonObjectRequest = JsonObjectRequest(
-        Request.Method.GET,
-        serverUrl,
+        Request.Method.POST,
+        serverUrl+method,
         data,
-        { response ->
-            onResponseReaction(response)
-//              response.get("message")
-        },
-        { error ->
-            Toast.makeText(main, error.message, Toast.LENGTH_LONG).show()
-        }
+        { response -> onResponseReaction(response) },
+        { error -> main.runOnUiThread {
+            val errorMsg = try {
+                val statusCode = error.networkResponse?.statusCode
+                val dataString = error.networkResponse?.data?.toString(Charsets.UTF_8)
+                "Błąd ${statusCode ?: "unknown"}: ${dataString ?: "brak odpowiedzi"}"
+            } catch (ex: Exception) {
+                "Błąd połączenia: ${ex.localizedMessage ?: "nieznany błąd"}"
+            }
+            Log.e("API_ERROR", error.toString())
+            Toast.makeText(main, errorMsg, Toast.LENGTH_LONG).show()
+        } }
     )
     volleyQueue.add(jsonObjectRequest)
 }
 
 @Composable
 fun AppContent(main : ComponentActivity) {
-    var isLoading by remember { mutableStateOf(false) }
+    var currentPage by remember { mutableStateOf(Page.LoginScreen) }
     var loadingMessage by remember { mutableStateOf("") }
-    val url = "http://${stringResource(id = R.string.serverUrl)}:${stringResource(id = R.string.serverPORT)}/"
+    var userToken by remember { mutableStateOf("") }
+    var currentUsername by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val url = "http://${context.getString(R.string.serverUrl)}:${context.getString(R.string.serverPORT)}/"
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        if (!isLoading) {
+        if (currentPage == Page.LoginScreen) {
             LoginScreen(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -96,19 +106,28 @@ fun AppContent(main : ComponentActivity) {
                 onLoginClicked = {login, password ->
 
                     val jsonBody = JSONObject()
-                    jsonBody.put("login", login)
+                    jsonBody.put("username", login)
                     jsonBody.put("password", password)
 
-                    makeAPIRequest(main, url, "login",jsonBody, { response ->
-                        val message = response.get("token");
-                        Toast.makeText(main, message.toString(), Toast.LENGTH_LONG).show()
-                    })
+                    makeAPIRequest(main, url, "login", jsonBody) { response ->
+                        val token = response.optString("token", "")
+                        main.runOnUiThread {
+                            if (token.isNotEmpty()) {
+                                userToken = token
+                                currentUsername = login
+                                currentPage = Page.AccessScreen
+                                Toast.makeText(main, "Logged inn", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(main, "Login failed: invalid response", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
 
-                    isLoading = true;
+                    currentPage = Page.LoadingScreen
                 },
                 loadingMessage
             )
-        } else {
+        } else if(currentPage == Page.LoadingScreen){
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -116,8 +135,10 @@ fun AppContent(main : ComponentActivity) {
                 contentAlignment = Alignment.Center
             ) {
                 AnimatedDotsText("Connecting server...", color = colorResource(id = R.color.hackerBlue),
-                    onFinishLoading = {isLoading=false; loadingMessage="Unable to login!"}
-                    )
+                    onFinishLoading = {
+                        currentPage = Page.LoginScreen;
+                    }
+                )
             }
         }
     }
@@ -218,5 +239,15 @@ fun LoginScreen(modifier: Modifier = Modifier, onLoginClicked: (login : String, 
                 )
             }
         }
+    }
+}
+@Composable
+fun AccessScreen(username: String, token: String){
+    Box(
+        modifier = Modifier.fillMaxSize().background(colorResource(id = R.color.background)),
+    ){
+//        Column {
+//            for(i in 0..20) Text("Bob${i}")
+//        }
     }
 }

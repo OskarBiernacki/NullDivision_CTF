@@ -1,5 +1,6 @@
 package com.example.nulldivision_ctf
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -10,7 +11,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -56,7 +55,8 @@ import org.json.JSONObject
 enum class Page{
     LoginScreen,
     LoadingScreen,
-    AccessScreen
+    AccessScreen,
+    UserRegister
 }
 
 class MainActivity : ComponentActivity() {
@@ -92,7 +92,6 @@ fun makeAPIRequest(main : ComponentActivity, serverUrl : String, method : String
     )
     volleyQueue.add(jsonObjectRequest)
 }
-
 @Composable
 fun AppContent(main : ComponentActivity) {
     var currentPage by remember { mutableStateOf(Page.LoginScreen) }
@@ -148,7 +147,13 @@ fun AppContent(main : ComponentActivity) {
                 )
             }
         }else if(currentPage == Page.AccessScreen){
-            AccessScreen(innerPadding, currentUsername, userToken)
+            AccessScreen(innerPadding, currentUsername, userToken, onUserRegisterButton = {
+                currentPage = Page.UserRegister
+            })
+        }else if(currentPage == Page.UserRegister) {
+            UserRegisterScreen(innerPadding, onUserRegisterButton = {
+
+            })
         }
     }
 }
@@ -250,8 +255,27 @@ fun LoginScreen(modifier: Modifier = Modifier, onLoginClicked: (login : String, 
         }
     }
 }
+@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun AccessScreen(innerPadding : PaddingValues, username: String, token: String){
+fun AccessScreen(innerPadding : PaddingValues, username: String, token: String, onUserRegisterButton: () -> Unit){
+    var commands by remember { mutableStateOf(listOf<String>()) }
+
+    val logo = painterResource(R.drawable.logo)
+    val context = LocalContext.current
+    val url = "http://${context.getString(R.string.serverUrl)}:${context.getString(R.string.serverPORT)}/"
+    val jsonBody = JSONObject()
+    jsonBody.put("token", token)
+    makeAPIRequest(main = context as ComponentActivity, url, "getComands", jsonBody) { response ->
+        response.optJSONArray("commands")?.let { array ->
+            val list = mutableListOf<String>()
+            for (i in 0 until array.length()) {
+                list.add(array.getString(i))
+            }
+            commands = list
+        }
+    }
+
+    Log.d("AccessScreen", "username: $username, token: $token")
     Box(
         modifier = Modifier.padding(innerPadding).fillMaxSize().background(colorResource(id = R.color.background)),
     ){
@@ -260,9 +284,33 @@ fun AccessScreen(innerPadding : PaddingValues, username: String, token: String){
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            for(i in 0..40)
+            Image(
+                painter = logo,
+                contentDescription = null,
+            )
+            Text("Logged in as $username", color = colorResource(id = R.color.hackerBlue), fontSize = 30.sp)
+            Button(
+                onClick = { onUserRegisterButton() },
+                border = BorderStroke(
+                    width = 2.dp,
+                    color = colorResource(id = R.color.hackerRed),
+                ),
+                modifier = Modifier.padding(top = 16.dp).background(
+                        color = colorResource(id = android.R.color.transparent),
+                        shape = RoundedCornerShape(4.dp)
+                    ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = android.R.color.transparent),
+                    contentColor = colorResource(id = R.color.hackerRed)
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+            ){
+                Text("RECRUIT NEW MEMBER")
+            }
+            Text("Your list of commands:", color = colorResource(id = R.color.hackerRed), fontSize = 20.sp)
+            for(i in 0..commands.size-1)
                 Box(
-                    modifier = Modifier.width(300.dp) // Stała szerokość
+                    modifier = Modifier.width(300.dp)
                         .padding(8.dp)
                         .border(
                             width = 2.dp,
@@ -271,9 +319,21 @@ fun AccessScreen(innerPadding : PaddingValues, username: String, token: String){
                         )
                         .padding(8.dp),
                     contentAlignment = Alignment.CenterStart
-//                modifier = Modifier.fillMaxSize(), // Make Box as wide as the screen
-//                contentAlignment = Alignment.Center
-            ){ Text("Random default text with no sens, just to check text boxes testnum=${i}", color = colorResource(id = R.color.hackerBlue)) }
+            ){ Text(commands[i], color = colorResource(id = R.color.hackerBlue)) }
+        }
+    }
+}
+@Composable
+fun UserRegisterScreen(innerPadding : PaddingValues, onUserRegisterButton: () -> Unit){
+    Box(
+        modifier = Modifier.padding(innerPadding).fillMaxSize().background(colorResource(id = R.color.background)),
+    ){
+        Column (
+            modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Work in progress....", color= colorResource(R.color.hackerBlue))
         }
     }
 }

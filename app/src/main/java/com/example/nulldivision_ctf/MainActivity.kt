@@ -9,12 +9,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -136,10 +142,13 @@ fun AppContent(main : ComponentActivity) {
             ) {
                 AnimatedDotsText("Connecting server...", color = colorResource(id = R.color.hackerBlue),
                     onFinishLoading = {
+                        loadingMessage="Unable to login!"
                         currentPage = Page.LoginScreen;
                     }
                 )
             }
+        }else if(currentPage == Page.AccessScreen){
+            AccessScreen(innerPadding, currentUsername, userToken)
         }
     }
 }
@@ -242,12 +251,29 @@ fun LoginScreen(modifier: Modifier = Modifier, onLoginClicked: (login : String, 
     }
 }
 @Composable
-fun AccessScreen(username: String, token: String){
+fun AccessScreen(innerPadding : PaddingValues, username: String, token: String){
     Box(
-        modifier = Modifier.fillMaxSize().background(colorResource(id = R.color.background)),
+        modifier = Modifier.padding(innerPadding).fillMaxSize().background(colorResource(id = R.color.background)),
     ){
-//        Column {
-//            for(i in 0..20) Text("Bob${i}")
-//        }
+        Column (
+            modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            for(i in 0..40)
+                Box(
+                    modifier = Modifier.width(300.dp) // Stała szerokość
+                        .padding(8.dp)
+                        .border(
+                            width = 2.dp,
+                            color = colorResource(id = R.color.hackerBlue),
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(8.dp),
+                    contentAlignment = Alignment.CenterStart
+//                modifier = Modifier.fillMaxSize(), // Make Box as wide as the screen
+//                contentAlignment = Alignment.Center
+            ){ Text("Random default text with no sens, just to check text boxes testnum=${i}", color = colorResource(id = R.color.hackerBlue)) }
+        }
     }
 }

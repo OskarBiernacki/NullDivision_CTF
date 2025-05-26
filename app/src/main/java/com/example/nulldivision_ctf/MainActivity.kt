@@ -142,7 +142,7 @@ fun AppContent(main : ComponentActivity) {
                 AnimatedDotsText("Connecting server...", color = colorResource(id = R.color.hackerBlue),
                     onFinishLoading = {
                         loadingMessage="Unable to login!"
-                        currentPage = Page.LoginScreen;
+                        currentPage = Page.LoginScreen
                     }
                 )
             }
@@ -180,7 +180,7 @@ fun AnimatedDotsText(baseText: String, color: Color, onFinishLoading: () -> Unit
     var dotCount by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
         while (dotCount<20) {
-            dotCount++;
+            dotCount++
             delay(500)
         }
         onFinishLoading()

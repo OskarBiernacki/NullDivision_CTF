@@ -151,9 +151,27 @@ fun AppContent(main : ComponentActivity) {
                 currentPage = Page.UserRegister
             })
         }else if(currentPage == Page.UserRegister) {
-            UserRegisterScreen(innerPadding, onUserRegisterButton = {
+            UserRegisterScreen(
+                innerPadding,
+                onUserRegisterButton = { username, password ->
+                    val jsonBody = JSONObject()
+                    jsonBody.put("username", username)
+                    jsonBody.put("password", password)
+                    jsonBody.put("secretAccessKey", context.getString(R.string.secretAccessKey))
 
-            })
+                    makeAPIRequest(main, url, "register", jsonBody) { response ->
+                        val message = response.optString("message", "")
+                        main.runOnUiThread {
+                            Toast.makeText(main, message.toString(), Toast.LENGTH_LONG).show()
+                            currentPage = Page.AccessScreen
+                        }
+                    }
+
+                },
+                onBackButton = {
+                    currentPage = Page.AccessScreen
+                }
+            )
         }
     }
 }
@@ -265,6 +283,8 @@ fun AccessScreen(innerPadding : PaddingValues, username: String, token: String, 
     val url = "http://${context.getString(R.string.serverUrl)}:${context.getString(R.string.serverPORT)}/"
     val jsonBody = JSONObject()
     jsonBody.put("token", token)
+    jsonBody.put("username",username)
+
     makeAPIRequest(main = context as ComponentActivity, url, "getComands", jsonBody) { response ->
         response.optJSONArray("commands")?.let { array ->
             val list = mutableListOf<String>()
@@ -307,7 +327,7 @@ fun AccessScreen(innerPadding : PaddingValues, username: String, token: String, 
             ){
                 Text("RECRUIT NEW MEMBER")
             }
-            Text("Your list of commands:", color = colorResource(id = R.color.hackerRed), fontSize = 20.sp)
+            Text("Your list of tasks:", color = colorResource(id = R.color.hackerRed), fontSize = 20.sp)
             for(i in 0..commands.size-1)
                 Box(
                     modifier = Modifier.width(300.dp)
@@ -324,7 +344,11 @@ fun AccessScreen(innerPadding : PaddingValues, username: String, token: String, 
     }
 }
 @Composable
-fun UserRegisterScreen(innerPadding : PaddingValues, onUserRegisterButton: () -> Unit){
+fun UserRegisterScreen(innerPadding : PaddingValues, onUserRegisterButton: (username : String, password : String) -> Unit,
+                       onBackButton: () -> Unit){
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier.padding(innerPadding).fillMaxSize().background(colorResource(id = R.color.background)),
     ){
@@ -333,7 +357,91 @@ fun UserRegisterScreen(innerPadding : PaddingValues, onUserRegisterButton: () ->
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Work in progress....", color= colorResource(R.color.hackerBlue))
+            Text("RECRUIT NEW MEMBER", color= colorResource(R.color.hackerBlue), fontSize = 35.sp, fontWeight = FontWeight.Bold)
+
+            OutlinedTextField(
+                value = username,
+                onValueChange = {username=it},
+                label = { Text("Username") },
+
+                colors =  TextFieldDefaults.colors(focusedContainerColor = colorResource(id = android.R.color.transparent),
+                    unfocusedContainerColor = colorResource(id = android.R.color.transparent),
+                    focusedLabelColor = colorResource(id = R.color.hackerRed),
+                    unfocusedLabelColor = colorResource(id = R.color.hackerBlue),
+                    focusedIndicatorColor = colorResource(id = R.color.hackerRed),
+                    unfocusedIndicatorColor = colorResource(id = R.color.hackerBlue),
+                    cursorColor = colorResource(id = R.color.hackerBlue),
+                    focusedTextColor = colorResource(id = R.color.hackerRed),
+                    unfocusedTextColor = colorResource(id = R.color.hackerBlue)
+                )
+            )
+            OutlinedTextField(
+                value = password,
+                onValueChange = {password=it},
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                colors =  TextFieldDefaults.colors(
+                    focusedContainerColor = colorResource(id = android.R.color.transparent),
+                    unfocusedContainerColor = colorResource(id = android.R.color.transparent),
+                    focusedLabelColor = colorResource(id = R.color.hackerRed),
+                    unfocusedLabelColor = colorResource(id = R.color.hackerBlue),
+                    focusedIndicatorColor = colorResource(id = R.color.hackerRed),
+                    unfocusedIndicatorColor = colorResource(id = R.color.hackerBlue),
+                    cursorColor = colorResource(id = R.color.hackerBlue),
+                    focusedTextColor = colorResource(id = R.color.hackerRed),
+                    unfocusedTextColor = colorResource(id = R.color.hackerBlue)
+                )
+            )
+            Button(
+                onClick = {
+                    onUserRegisterButton(username, password)
+                },
+                border = BorderStroke(
+                    width = 2.dp,
+                    color = colorResource(id = R.color.hackerBlue),
+                ),
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .background(color = colorResource(id = android.R.color.transparent), shape = RoundedCornerShape(4.dp)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = android.R.color.transparent),
+                    contentColor = colorResource(id = R.color.hackerBlue)
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+            ) {
+                Text(
+                    text = "CREATE",
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                )
+            }
+            Button(
+                onClick = {
+                        onBackButton()
+                },
+                border = BorderStroke(
+                    width = 2.dp,
+                    color = colorResource(id = R.color.hackerRed),
+                ),
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .background(color = colorResource(id = android.R.color.transparent), shape = RoundedCornerShape(4.dp)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = android.R.color.transparent),
+                    contentColor = colorResource(id = R.color.hackerRed)
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+            ) {
+                Text(
+                    text = "BACK",
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                )
+            }
         }
     }
 }

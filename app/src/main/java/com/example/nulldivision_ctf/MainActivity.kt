@@ -94,6 +94,7 @@ fun makeAPIRequest(main : ComponentActivity, serverUrl : String, method : String
 }
 @Composable
 fun AppContent(main : ComponentActivity) {
+    var commands by remember { mutableStateOf(listOf<String>()) }
     var currentPage by remember { mutableStateOf(Page.LoginScreen) }
     var loadingMessage by remember { mutableStateOf("") }
     var userToken by remember { mutableStateOf("") }
@@ -122,6 +123,20 @@ fun AppContent(main : ComponentActivity) {
                                 currentUsername = login
                                 currentPage = Page.AccessScreen
                                 Toast.makeText(main, "Logged inn", Toast.LENGTH_LONG).show()
+
+                                val jsonBody2 = JSONObject()
+                                jsonBody2.put("token", token)
+                                jsonBody2.put("username",currentUsername)
+                                makeAPIRequest(main = context as ComponentActivity, url, "getCommands", jsonBody2) { response ->
+                                    response.optJSONArray("commands")?.let { array ->
+                                        val list = mutableListOf<String>()
+                                        for (i in 0 until array.length()) {
+                                            list.add(array.getString(i))
+                                        }
+                                        commands = list
+                                    }
+                                }
+
                             } else {
                                 Toast.makeText(main, "Login failed: invalid response", Toast.LENGTH_LONG).show()
                             }
@@ -149,7 +164,7 @@ fun AppContent(main : ComponentActivity) {
         }else if(currentPage == Page.AccessScreen){
             AccessScreen(innerPadding, currentUsername, userToken, onUserRegisterButton = {
                 currentPage = Page.UserRegister
-            })
+            }, commands)
         }else if(currentPage == Page.UserRegister) {
             UserRegisterScreen(
                 innerPadding,
@@ -275,25 +290,25 @@ fun LoginScreen(modifier: Modifier = Modifier, onLoginClicked: (login : String, 
 }
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun AccessScreen(innerPadding : PaddingValues, username: String, token: String, onUserRegisterButton: () -> Unit){
-    var commands by remember { mutableStateOf(listOf<String>()) }
+fun AccessScreen(innerPadding : PaddingValues, username: String, token: String, onUserRegisterButton: () -> Unit, commands : List<String> ){
+//    var commands by remember { mutableStateOf(listOf<String>()) }
 
     val logo = painterResource(R.drawable.logo)
-    val context = LocalContext.current
-    val url = "http://${context.getString(R.string.serverUrl)}:${context.getString(R.string.serverPORT)}/"
-    val jsonBody = JSONObject()
-    jsonBody.put("token", token)
-    jsonBody.put("username",username)
 
-    makeAPIRequest(main = context as ComponentActivity, url, "getComands", jsonBody) { response ->
-        response.optJSONArray("commands")?.let { array ->
-            val list = mutableListOf<String>()
-            for (i in 0 until array.length()) {
-                list.add(array.getString(i))
-            }
-            commands = list
-        }
-    }
+//    val context = LocalContext.current
+//    val url = "http://${context.getString(R.string.serverUrl)}:${context.getString(R.string.serverPORT)}/"
+//    val jsonBody = JSONObject()
+//    jsonBody.put("token", token)
+//    jsonBody.put("username",username)
+//    makeAPIRequest(main = context as ComponentActivity, url, "getCommands", jsonBody) { response ->
+//        response.optJSONArray("commands")?.let { array ->
+//            val list = mutableListOf<String>()
+//            for (i in 0 until array.length()) {
+//                list.add(array.getString(i))
+//            }
+//            commands = list
+//        }
+//    }
 
     Log.d("AccessScreen", "username: $username, token: $token")
     Box(

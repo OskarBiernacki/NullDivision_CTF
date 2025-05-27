@@ -72,7 +72,7 @@ def login():
     return jsonify({'token': token}), 200
 
 
-@app.route('/getComands', methods=['POST'])
+@app.route('/getCommands', methods=['POST'])
 def get_commands():
     data = request.json
     token = data.get('token')

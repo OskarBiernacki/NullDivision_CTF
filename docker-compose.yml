@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  ftp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "2137:2137"
+      - "21:21"
+      - "21000-21010:21000-21010"
+    container_name: nulldivison

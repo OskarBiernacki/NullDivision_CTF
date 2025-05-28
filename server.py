@@ -8,8 +8,8 @@ app.config['PORT'] = 2137
 app.config['HOST'] = '0.0.0.0'
 
 users = {
-    'admin':'admin',
-    'hacker':'sicretp4sword'
+    'admin':'randomHardPassword_123',
+    'hacker':'sicretp4sword_Bonzo',
 }
 
 user_commands = {

@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y vsftpd
 
 # Utworzenie katalogu dla FTP i przykładowego pliku
 RUN mkdir -p /ftp && \
-    echo "Witaj na serwerze FTP!" > /ftp/readme.txt
+    echo "Welcome, recruit.\n\nYou've caught the attention of NullDivision.\nYour first task is simple: download our secure communication app from this directory.\n\nFile: nulldivision-client.apk\n\nInstall it on a secure Android device and wait for further instructions.\n\n— NullDivision" > /ftp/readme.txt
+
 RUN chmod 755 /ftp && \
     chmod 644 /ftp/readme.txt
 
@@ -28,7 +29,7 @@ pasv_enable=YES\n\
 pasv_min_port=21000\n\
 pasv_max_port=21010\n\
 secure_chroot_dir=/var/run/vsftpd/empty\n\
-ftpd_banner=Witaj na serwerze FTP.\n\
+ftpd_banner=Secret NullDivision server\n\
 " > /etc/vsftpd.conf
 
 # Otwórz port FTP i zakres portów dla trybu pasywnego

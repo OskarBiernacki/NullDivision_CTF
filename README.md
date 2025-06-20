@@ -17,20 +17,20 @@ Your task is to:
 
 ## Installation
 1. Clone the repository:
-   ```bash
- git clone https://github.com/your-repo/NullDivision_CTF.git 
- cd NullDivision_CTF
- ```
+```bash
+git clone https://github.com/your-repo/NullDivision_CTF.git 
+cd NullDivision_CTF
+```
 
 2. launch the environment using Docker Compose:
-   ```bash
- docker-compose up --build -d
- ```.
+```bash
+docker-compose up --build -d
+```
 
 3. verify that the container is running:
-   ``bash
- docker-compose ps
- ```.
+```bash
+docker-compose ps
+```
 
 4. the FTP server will be available on port `21` and the application server on port `2137`.
 
@@ -40,9 +40,9 @@ Your task is to:
    - Download the `nulldivision-client.apk` file.
 
    Login example:
-   ```bash
- ftp localhost 21
- ```.
+```bash
+ftp localhost 21
+```
 
 2 **Decompile the mobile app**:
    - Examine the app's code to understand how it communicates with the server.
@@ -70,9 +70,9 @@ Your goal is:
 
 ## Troubleshooting
 - If the container is not working, check the logs:
-  ``bash
+```bash
  docker-compose logs
- ``.
+```
 - Make sure ports `21` and `2137` are open and not occupied by other processes.
 
 ## Authors

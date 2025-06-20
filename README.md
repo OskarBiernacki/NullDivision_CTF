@@ -1,81 +1,79 @@
-![NullDivision Logo](logo.png)
-
 # NullDivision CTF
 
-## Wprowadzenie
-Witaj w CTF-ie **NullDivision**! Wcielasz się w rolę śledczego, który rozpracowuje grupę hakerską o nazwie **NullDivision**. Po długim śledztwie udało Ci się zlokalizować ich serwer, na którym znajduje się forum rekrutacyjne. Nowi członkowie grupy pobierają z niego aplikację mobilną, która służy do komunikacji między członkami grupy.
+## Introduction
+Welcome to the **NullDivision** CTF! You take on the role of an investigator who is cracking down on a hacking group called **NullDivision**. After a long investigation, you have managed to locate their server, which hosts a recruitment forum. New members of the group download a mobile app from it, which is used for communication between group members.
 
-Twoim zadaniem jest:
-1. **Zdekompilowanie aplikacji mobilnej**, aby zrozumieć jej działanie.
-2. **Zalogowanie się na serwer FTP** jako użytkownik `anonymous`, aby pobrać aplikację.
-3. **Eksploatacja błędów w komunikacji między aplikacją a serwerem**, aby uzyskać dostęp do treści zadań innych użytkowników.
+Your task is to:
+1. **Decompile the mobile application** to understand how it works.
+2. **Log in to the FTP server** as an `anonymous` user to download the application.
+3. **Exploit errors in communication between the application and the server** to access the content of other users' tasks.
 
-## Wymagania
-- **Docker** i **Docker Compose** zainstalowane na Twoim systemie.
-- Narzędzia do dekompilacji aplikacji mobilnych (np. `apktool`, `jadx`, `dex2jar`, `jd-gui`).
-- Narzędzia do analizy ruchu sieciowego (np. `Wireshark`, `Burp Suite`).
+## Requirements
+- **Docker** and **Docker Compose** installed on your system.
+- Mobile application decompilation tools (e.g. `apktool`, `jadx`, `dex2jar`, `jd-gui`).
+- Network traffic analysis tools (e.g. `Wireshark`, `Burp Suite`).
 
-## Instalacja
-1. Sklonuj repozytorium:
+## Installation
+1. Clone the repository:
+   ``bash
+ git clone https://github.com/your-repo/NullDivision_CTF.git
+ cd NullDivision_CTF
+ ``.
+
+2. launch the environment using Docker Compose:
    ```bash
-   git clone https://github.com/your-repo/NullDivision_CTF.git
-   cd NullDivision_CTF
-   ```
+ docker-compose up --build -d
+ ```.
 
-2. Uruchom środowisko za pomocą Docker Compose:
-   ```bash
-   docker-compose up --build -d
-   ```
+3. verify that the container is running:
+   ``bash
+ docker-compose ps
+ ```.
 
-3. Sprawdź, czy kontener działa:
-   ```bash
-   docker-compose ps
-   ```
+4. the FTP server will be available on port `21` and the application server on port `2137`.
 
-4. Serwer FTP będzie dostępny na porcie `21`, a serwer aplikacji na porcie `2137`.
+## Tasks
+1. **Log in to the FTP server**:
+   - Use any FTP client to log in as `anonymous`.
+   - Download the `nulldivision-client.apk` file.
 
-## Zadania
-1. **Zaloguj się na serwer FTP**:
-   - Użyj dowolnego klienta FTP, aby zalogować się jako `anonymous`.
-   - Pobierz plik `nulldivision-client.apk`.
+   Login example:
+   ``bash
+ ftp localhost 21
+ ``.
 
-   Przykład logowania:
-   ```bash
-   ftp localhost 21
-   ```
+2 **Decompile the mobile app**:
+   - Examine the app's code to understand how it communicates with the server.
+   - Use tools such as:
+     - `apktool`: To decompile the APK file and analyze XML files and resources.
+     - `jadx`: For analyzing Java source code.
+     - `dex2jar`: For converting `.dex` files to `.jar`.
+     - `jd-gui`: For viewing `.jar` files in a readable form.
 
-2. **Zdekompiluj aplikację mobilną**:
-   - Zbadaj kod aplikacji, aby zrozumieć, jak komunikuje się z serwerem.
-   - Użyj narzędzi takich jak:
-     - `apktool`: Do dekompilacji pliku APK i analizy plików XML oraz zasobów.
-     - `jadx`: Do analizy kodu źródłowego w języku Java.
-     - `dex2jar`: Do konwersji plików `.dex` na `.jar`.
-     - `jd-gui`: Do przeglądania plików `.jar` w czytelnej formie.
+3 **Exploit communication errors**:
+   - Identify weaknesses in the server API implementation.
+   - Exploit them to access other users' task content.
 
-3. **Eksploatuj błędy w komunikacji**:
-   - Zidentyfikuj słabości w implementacji API serwera.
-   - Wykorzystaj je, aby uzyskać dostęp do treści zadań innych użytkowników.
+## Background Story
+You are an investigator who has been tracking the **NullDivision** hacking group for months. After many attempts, you have managed to locate their server, which acts as a recruitment forum. New members of the group download a mobile app from it, which allows communication between members.
 
-## Tło fabularne
-Jesteś śledczym, który od miesięcy śledzi grupę hakerską **NullDivision**. Po wielu próbach udało Ci się zlokalizować ich serwer, który pełni rolę forum rekrutacyjnego. Nowi członkowie grupy pobierają z niego aplikację mobilną, która umożliwia komunikację między członkami.
+Your goal is:
+- Understand how the app works.
+- Exploit bugs in its implementation to gain access to the group's confidential information.
 
-Twoim celem jest:
-- Zrozumienie, jak działa aplikacja.
-- Wykorzystanie błędów w jej implementacji, aby uzyskać dostęp do poufnych informacji grupy.
+## Useful tips
+- **FTP**: The FTP server is configured in `anonymous` mode, which means you can log in without a password.
+- **Decompilation**: Use tools such as `apktool`, `jadx`, `dex2jar` and `jd-gui` to analyze the application code.
+- **Network traffic analysis**: Monitor the communication between the application and the server to identify potential vulnerabilities.
 
-## Przydatne wskazówki
-- **FTP**: Serwer FTP jest skonfigurowany w trybie `anonymous`, co oznacza, że możesz zalogować się bez hasła.
-- **Dekompilacja**: Użyj narzędzi takich jak `apktool`, `jadx`, `dex2jar` i `jd-gui`, aby przeanalizować kod aplikacji.
-- **Analiza ruchu sieciowego**: Monitoruj komunikację między aplikacją a serwerem, aby zidentyfikować potencjalne luki.
+## Troubleshooting
+- If the container is not working, check the logs:
+  ``bash
+ docker-compose logs
+ ``.
+- Make sure ports `21` and `2137` are open and not occupied by other processes.
 
-## Rozwiązywanie problemów
-- Jeśli kontener nie działa, sprawdź logi:
-  ```bash
-  docker-compose logs
-  ```
-- Upewnij się, że porty `21` i `2137` są otwarte i nie są zajęte przez inne procesy.
+## Authors
+This CTF was created by **Oskar Biernacki** for CTF_PJATK_2025.
 
-## Autorzy
-Ten CTF został stworzony przez **Oskar Biernacki** na poczet CTF_PJATK_2025.
-
-Powodzenia, śledczy! 🎯
+Good luck, investigators!

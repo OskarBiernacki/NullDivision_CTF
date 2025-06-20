@@ -1,3 +1,5 @@
+![NullDivision Logo](logo.png)
+
 # NullDivision CTF
 
 ## Introduction
@@ -15,10 +17,10 @@ Your task is to:
 
 ## Installation
 1. Clone the repository:
-   ``bash
- git clone https://github.com/your-repo/NullDivision_CTF.git
+   ```bash
+ git clone https://github.com/your-repo/NullDivision_CTF.git 
  cd NullDivision_CTF
- ``.
+ ```
 
 2. launch the environment using Docker Compose:
    ```bash
@@ -38,9 +40,9 @@ Your task is to:
    - Download the `nulldivision-client.apk` file.
 
    Login example:
-   ``bash
+   ```bash
  ftp localhost 21
- ``.
+ ```.
 
 2 **Decompile the mobile app**:
    - Examine the app's code to understand how it communicates with the server.

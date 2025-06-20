@@ -18,7 +18,7 @@ Your task is to:
 ## Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-repo/NullDivision_CTF.git 
+git clone https://github.com/OskarBiernacki/NullDivision_CTF
 cd NullDivision_CTF
 ```
 
